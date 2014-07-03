@@ -9,10 +9,52 @@ from actstream.decorators import stream
 from actstream.registry import check
 
 
+def model_name(model_class):
+    if hasattr(model_class._meta, 'model_name'):
+        return model_class._meta.model_name
+    
+    return model_class._meta.module_name
+
+def app_label(model_class):
+    return model_class._meta.app_label
+
+
+def _action_build_kwargs(kwargs):
+    
+    if 'action' in kwargs:
+        kwargs['action_object'] = kwargs['action']
+        kwargs.pop('action')
+
+    kwargs2 = {}
+    for obj_name in ('actor', 'target', 'action_object'):
+        if obj_name in kwargs:
+            kwargs2['%s_object_id' % obj_name] = kwargs[obj_name].id
+            kwargs2['%s_content_type' % obj_name] = ContentType.objects.get(app_label=app_label(kwargs[obj_name]), model=model_name(kwargs[obj_name]))
+            
+            kwargs.pop(obj_name)
+
+    for key,value in kwargs.iteritems():
+        kwargs2[key] = value
+        
+    return kwargs2
+    
+
 class ActionManager(GFKManager):
     """
     Default manager for Actions, accessed through Action.objects
     """
+
+    def get(self, *args, **kwargs):
+        kwargs = _action_build_kwargs(kwargs)
+        return super(ActionManager, self).get(*args, **kwargs)
+
+    def filter(self, *args, **kwargs):
+        kwargs = _action_build_kwargs(kwargs)
+        return super(ActionManager, self).filter(*args, **kwargs)
+
+    def exclude(self, *args, **kwargs):
+        kwargs = _action_build_kwargs(kwargs)
+        return super(ActionManager, self).exclude(*args, **kwargs)
 
     def public(self, *args, **kwargs):
         """
