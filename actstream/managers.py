@@ -25,11 +25,16 @@ def _action_build_kwargs(kwargs):
         kwargs['action_object'] = kwargs['action']
         kwargs.pop('action')
 
+    # We must store the unstranslated string
+    # If verb is an ugettext_lazyed string, fetch the original string
+    if 'verb' in kwargs and hasattr(kwargs['verb'], '_proxy____args'):
+        kwargs['verb'] = kwargs['verb']._proxy____args[0]
+
     kwargs2 = {}
     for obj_name in ('actor', 'target', 'action_object'):
         if obj_name in kwargs:
             kwargs2['%s_object_id' % obj_name] = kwargs[obj_name].id
-            kwargs2['%s_content_type' % obj_name] = ContentType.objects.get(app_label=app_label(kwargs[obj_name]), model=model_name(kwargs[obj_name]))
+            kwargs2['%s_content_type' % obj_name] = ContentType.objects.get_for_model(kwargs[obj_name])
             
             kwargs.pop(obj_name)
 
@@ -43,6 +48,13 @@ class ActionManager(GFKManager):
     """
     Default manager for Actions, accessed through Action.objects
     """
+    def create(self, *args, **kwargs):
+        kwargs = _action_build_kwargs(kwargs)
+        return super(ActionManager, self).create(*args, **kwargs)
+
+    def get_or_create(self, *args, **kwargs):
+        kwargs = _action_build_kwargs(kwargs)
+        return super(ActionManager, self).get_or_create(*args, **kwargs)
 
     def get(self, *args, **kwargs):
         kwargs = _action_build_kwargs(kwargs)
