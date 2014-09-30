@@ -1,18 +1,15 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.encoding import force_text
 
-try:
-    from django.apps import AppConfig
-except ImportError:
-    AppConfig = object
+from actstream import settings
+from actstream.signals import action
+from actstream.actions import action_handler
+from actstream.compat import AppConfig
 
 try:
     from django.db.backends.mysql.base import DatabaseOperations
 except (ImportError, ImproperlyConfigured):
     DatabaseOperations = None
-
-
-from actstream import settings
 
 
 def fixed_last_executed_query(self, cursor, sql, params):
@@ -26,15 +23,8 @@ class ActstreamConfig(AppConfig):
     name = 'actstream'
 
     def ready(self):
-        from actstream.signals import action
-        from actstream.actions import action_handler
-
         action.connect(action_handler, dispatch_uid='actstream.models')
-
-        if hasattr(self, 'get_model'):
-            action_class = self.get_model('action')
-        else:
-            from actstream.models import Action as action_class
+        action_class = self.get_model('action')
 
         if settings.USE_JSONFIELD:
             try:

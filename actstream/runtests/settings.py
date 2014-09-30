@@ -16,7 +16,7 @@ ADMINS = (
 ENGINE = os.environ.get('DATABASE_ENGINE', 'django.db.backends.sqlite3')
 DATABASES = {
     'default': {
-        'ENGINE':  ENGINE,
+        'ENGINE': ENGINE,
         'NAME': 'test',
         'OPTIONS': {
         }
@@ -90,11 +90,11 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.admindocs',
-    'django.contrib.comments',
     'django.contrib.sites',
-    'django.contrib.messages',
+    'django.contrib.comments',
+    'actstream.runtests.testapp',
+    'actstream.runtests.testapp_nested',
     'actstream',
-    'testapp'
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -107,14 +107,21 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 
 ACTSTREAM_SETTINGS = {
-    'MANAGER': 'testapp.streams.MyActionManager',
+    'MANAGER': 'actstream.runtests.testapp.streams.MyActionManager',
     'FETCH_RELATIONS': True,
     'USE_PREFETCH': True,
     'USE_JSONFIELD': True,
     'GFK_FETCH_DEPTH': 0,
 }
 
-if django.VERSION >= (1, 5):
+if django.VERSION[:2] >= (1, 5):
     AUTH_USER_MODEL = 'testapp.MyUser'
 
 TEST_RUNNER = 'django.test.simple.DjangoTestSuiteRunner'
+
+
+if 'COVERAGE' in os.environ:
+    INSTALLED_APPS += ('django_coverage',)
+    TEST_RUNNER = 'django_coverage.coverage_runner.CoverageRunner'
+    COVERAGE_REPORT_HTML_OUTPUT_DIR = 'coverage'
+    COVERAGE_REPORT_DATA_FILE = '.coverage'

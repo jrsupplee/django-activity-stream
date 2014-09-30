@@ -117,6 +117,25 @@ class ActionManager(GFKManager):
         )
 
     @stream
+    def any(self, obj, **kwargs):
+        """
+        Stream of most recent actions where obj is the actor OR target OR action_object.
+        """
+        check(obj)
+        ctype = ContentType.objects.get_for_model(obj)
+        return self.public(
+            Q(
+                actor_content_type=ctype,
+                actor_object_id=obj.pk,
+            ) | Q(
+                target_content_type=ctype,
+                target_object_id=obj.pk,
+            ) | Q(
+                action_object_content_type=ctype,
+                action_object_object_id=obj.pk,
+            ), **kwargs)
+
+    @stream
     def user(self, obj, **kwargs):
         """
         Stream of most recent actions by objects that the passed User obj is
@@ -140,13 +159,13 @@ class ActionManager(GFKManager):
             user=obj).values_list('content_type_id',
                                   'object_id', 'actor_only')
 
-        if not len(follow_gfks):
-            return qs.none()
-
         for content_type_id, object_id, actor_only in follow_gfks.iterator():
             actors_by_content_type[content_type_id].append(object_id)
             if not actor_only:
                 others_by_content_type[content_type_id].append(object_id)
+
+        if len(actors_by_content_type) + len(others_by_content_type) == 0:
+            return qs.none()
 
         for content_type_id, object_ids in actors_by_content_type.items():
             q = q | Q(
@@ -203,7 +222,9 @@ class FollowManager(GFKManager):
         Eg following(user, User) will only return users following the given user
         """
         qs = self.filter(user=user)
+        ctype_filters = Q()
         for model in models:
             check(model)
-            qs = qs.filter(content_type=ContentType.objects.get_for_model(model))
+            ctype_filters |= Q(content_type=ContentType.objects.get_for_model(model))
+        qs = qs.filter(ctype_filters)
         return [follow.follow_object for follow in qs.fetch_generic_relations('follow_object')]

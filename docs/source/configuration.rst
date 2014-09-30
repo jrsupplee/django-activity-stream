@@ -2,17 +2,12 @@ Configuration
 ==============
 
 
-Models
--------
+Model Registration
+------------------
 
 In order to have your models be either an actor, target, or action object they must first be registered with actstream.
 In v0.5 and above, actstream has a registry of all actionable model classes.
 When you register them, actstream sets up certain GenericRelations that are required for generating activity streams.
-
-.. warning::
-
-    Introducing the registry change makes the ACTSTREAM_SETTINGS['MODELS'] setting obsolte so please use the register functions instead.
-
 
 You normally call register right after your model is defined (models.py) but you can call it anytime before you need to generate actions or activity streams.
 
@@ -39,11 +34,14 @@ For Django versions 1.7 or later, you should use `AppConfig <https://docs.django
         name = 'myapp'
 
         def ready(self):
-            registry.register(self.get_models('MyModel'))
+            registry.register(self.get_model('MyModel'))
 
     # myapp/__init__.py
     default_app_config = 'myapp.apps.MyAppConfig'
 
+.. note::
+
+    Introducing the registry change makes the ``ACTSTREAM_SETTINGS['MODELS']`` setting obsolete so please use the register functions instead.
 
 Settings
 --------
@@ -55,7 +53,7 @@ Here is an example of what you can set in your ``settings.py``
 .. code-block:: python
 
     ACTSTREAM_SETTINGS = {
-        'MANAGER': 'myapp.streams.MyActionManager',
+        'MANAGER': 'myapp.managers.MyActionManager',
         'FETCH_RELATIONS': True,
         'USE_JSONFIELD': True,
     }
@@ -68,16 +66,20 @@ Here is an example of what you can set in your ``settings.py``
 
 Supported settings are defined below.
 
+.. _manager:
 
 MANAGER
 ********
 
+The action manager is the `Django manager <https://docs.djangoproject.com/en/dev/topics/db/managers/>`_ interface used for querying activity data from the database.
+
 The Python import path of the manager to use for ``Action.objects``.
 Add your own manager here to create custom streams.
+There can only be one manager class per Django project.
 
 For more info, see :ref:`custom-streams`
 
-Defaults to ``actstream.managers.ActionManager``
+Defaults to :class:`actstream.managers.ActionManager`
 
 FETCH_RELATIONS
 ***************

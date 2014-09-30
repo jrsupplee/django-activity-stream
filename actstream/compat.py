@@ -5,6 +5,7 @@ Django>=1.5 compatibility utilities
 from django.conf import settings
 
 user_model_label = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
+username_field = lambda: getattr(get_user_model(), 'USERNAME_FIELD', 'username')
 
 try:
     from django.contrib.auth import get_user_model
@@ -21,3 +22,14 @@ try:
     from django.contrib.contenttypes import fields as generic
 except ImportError:
     from django.contrib.contenttypes import generic
+
+try:
+    from django.apps import AppConfig
+except ImportError:
+    from django.db import models
+
+    class AppConfig(object):
+        name = None
+
+        def get_model(self, model_name):
+            return models.get_model(self.name.split('.')[-1], model_name, only_installed=False)

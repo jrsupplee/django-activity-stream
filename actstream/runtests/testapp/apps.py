@@ -1,13 +1,12 @@
-try:
-    from django.apps import AppConfig
-except ImportError:
-    AppConfig = object
-
-from actstream.registry import register
+from actstream.compat import AppConfig
 
 
 class TestappConfig(AppConfig):
-    name = 'testapp'
+    name = 'actstream.runtests.testapp'
 
     def ready(self):
-        register(self.get_model('player'), self.get_model('myuser'))
+        from actstream.registry import register
+        register(self.get_model('player'))
+        myuser = self.get_model('myuser')
+        if myuser:
+            register(myuser)

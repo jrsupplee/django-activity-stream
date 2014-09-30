@@ -2,11 +2,11 @@ language: python
 python:
   - "2.7"
 env:
-  - TOX_ENV=pypy-djdev
-  - TOX_ENV=py3.4-djdev
-  - TOX_ENV=py3.3-djdev
-  - TOX_ENV=py3.2-djdev
-  - TOX_ENV=py2.7-djdev
+  - TOX_ENV=pypy-dj1.7
+  - TOX_ENV=py3.4-dj1.7
+  - TOX_ENV=py3.3-dj1.7
+  - TOX_ENV=py3.2-dj1.7
+  - TOX_ENV=py2.7-dj1.7
   - TOX_ENV=pypy-dj1.6
   - TOX_ENV=py3.3-dj1.6
   - TOX_ENV=py3.2-dj1.6
@@ -20,19 +20,15 @@ env:
   - TOX_ENV=pypy-dj1.4
   - TOX_ENV=py2.7-dj1.4
   - TOX_ENV=py2.6-dj1.4
+  - TOX_ENV=coverage
 install:
-  - pip install tox==1.7.1
-addons:
-  postgresql: "9.3"
-before_script:
-  - psql -c 'create database test;' -U postgres
+  - pip install tox==1.7.2 coveralls==0.4.2
 script:
   - tox -e $TOX_ENV
-  - DATABASE_ENGINE=postgres DATABASE_USER=postgres DATABASE_PASSWORD="" tox -e $TOX_ENV 
-  - DATABASE_ENGINE=mysql DATABASE_USER="travis" DATABASE_PASSWORD="" tox -e $TOX_ENV
 notifications:
   email: false
 branches:
   only:
-    - develop
     - master
+after_success:
+  coveralls
