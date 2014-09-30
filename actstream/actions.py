@@ -24,7 +24,7 @@ def follow(user, obj, send_action=True, actor_only=True):
     Returns the created ``Follow`` instance.
 
     If ``send_action`` is ``True`` (the default) then a
-    ``<user> started following <object>`` action signal is sent.
+    "``<user>`` started following ``<object>``" action signal is sent.
 
     If ``actor_only`` is ``True`` (the default) then only actions where the
     object is the actor will appear in the user's activity stream. Set to
@@ -33,6 +33,7 @@ def follow(user, obj, send_action=True, actor_only=True):
 
     Example::
 
+        group = Group(pk=int(request.POST['group']))
         follow(request.user, group, actor_only=False)
     """
     check(obj)

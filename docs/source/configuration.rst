@@ -57,9 +57,7 @@ Here is an example of what you can set in your ``settings.py``
     ACTSTREAM_SETTINGS = {
         'MANAGER': 'myapp.streams.MyActionManager',
         'FETCH_RELATIONS': True,
-        'USE_PREFETCH': True,
         'USE_JSONFIELD': True,
-        'GFK_FETCH_DEPTH': 1,
     }
 
 .. note::
