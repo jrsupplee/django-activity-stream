@@ -1,6 +1,6 @@
 import datetime
 
-from django.db.models import get_model
+from django.db.models.loading import get_model
 from django.utils.translation import ugettext_lazy as _
 from django.utils.six import text_type
 from django.contrib.contenttypes.models import ContentType

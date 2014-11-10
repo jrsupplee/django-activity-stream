@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from django.db.models import get_model
+from django.db.models.loading import get_model
 from django.db.models import Q
 from django.contrib.contenttypes.models import ContentType
 
