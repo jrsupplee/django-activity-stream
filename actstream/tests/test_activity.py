@@ -1,3 +1,5 @@
+# -*- coding: utf-8  -*-
+import django
 from django.contrib.auth.models import Group
 
 from django.utils.translation import ugettext_lazy as _
@@ -48,6 +50,15 @@ class ActivityTestCase(DataTestCase):
             user_stream(self.user3, with_user_activity=True),
             ['Three liked actstream %s ago' % self.timesince]
         )
+
+    def test_follow_unicode(self):
+        """ Reproduce bug #201, that pops, for example, in django admin
+        """
+        self.user1.username = 'éé'
+        self.user1.save()
+        f = follow(self.user1, self.user2)
+        # just to check that it do not meet a UnicodeDecodeError
+        self.assertIn('éé', str(f))
 
     def test_stream(self):
         self.assertSetEqual(user_stream(self.user1), [
@@ -104,8 +115,8 @@ class ActivityTestCase(DataTestCase):
 
     def test_following_models_OR_query(self):
         follow(self.user1, self.group, timestamp=self.testdate)
-        self.assertEqual([self.user2, self.group],
-                         following(self.user1, Group, self.User))
+        self.assertSetEqual([self.user2, self.group],
+                            following(self.user1, Group, self.User), domap=False)
 
     def test_y_no_orphaned_follows(self):
         follows = Follow.objects.count()
@@ -185,17 +196,6 @@ class ActivityTestCase(DataTestCase):
         self.assertEqual(render(src, user=self.user2, group=self.group), 'yup')
         self.assertEqual(render(src, user=self.user1, group=self.group), '')
 
-    def test_store_untranslated_string(self):
-        lang = get_language()
-        activate("fr")
-        verb = _('English')
-
-        self.assertEqual(verb, "Anglais")
-        action.send(self.user1, verb=verb, action_object=self.comment,
-                    target=self.group, timestamp=self.testdate)
-        self.assertTrue(Action.objects.filter(verb='English').exists())
-        activate(lang)
-
     def test_none_returns_an_empty_queryset(self):
         qs = Action.objects.none()
         self.assertFalse(qs.exists())
@@ -205,3 +205,16 @@ class ActivityTestCase(DataTestCase):
         self.assertNotIn(self.join_action, list(user_stream(self.user1)))
         self.assertIn(self.join_action,
                       list(user_stream(self.user1, with_user_activity=True)))
+
+    if django.VERSION[:2] > (1, 4):
+        def test_store_untranslated_string(self):
+            lang = get_language()
+            activate('fr')
+            verb = _('English')
+
+            self.assertEqual(verb, 'Anglais')
+            action.send(self.user1, verb=verb, action_object=self.comment,
+                        target=self.group, timestamp=self.testdate)
+            self.assertTrue(Action.objects.filter(verb='English').exists())
+            activate(lang)
+

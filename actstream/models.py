@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import django
 from django.db import models
 from django.core.urlresolvers import reverse
@@ -24,14 +26,14 @@ class Follow(models.Model):
     """
     Lets a user follow the activities of any specific actor
     """
-    user = models.ForeignKey(user_model_label)
+    user = models.ForeignKey(user_model_label, db_index=True)
 
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.CharField(max_length=255)
+    content_type = models.ForeignKey(ContentType, db_index=True)
+    object_id = models.CharField(max_length=255, db_index=True)
     follow_object = generic.GenericForeignKey()
     actor_only = models.BooleanField("Only follow actions where "
                                      "the object is the target.", default=True)
-    started = models.DateTimeField(default=now)
+    started = models.DateTimeField(default=now, db_index=True)
     objects = FollowManager()
 
     class Meta:
@@ -71,28 +73,29 @@ class Action(models.Model):
         <a href="http://oebfare.com/">brosner</a> commented on <a href="http://github.com/pinax/pinax">pinax/pinax</a> 2 hours ago
 
     """
-    actor_content_type = models.ForeignKey(ContentType, related_name='actor')
-    actor_object_id = models.CharField(max_length=255)
+    actor_content_type = models.ForeignKey(ContentType, related_name='actor',
+                                           db_index=True)
+    actor_object_id = models.CharField(max_length=255, db_index=True)
     actor = generic.GenericForeignKey('actor_content_type', 'actor_object_id')
 
-    verb = models.CharField(max_length=255)
+    verb = models.CharField(max_length=255, db_index=True)
     description = models.TextField(blank=True, null=True)
 
     target_content_type = models.ForeignKey(ContentType, blank=True, null=True,
-                                            related_name='target')
-    target_object_id = models.CharField(max_length=255, blank=True, null=True)
+                                            related_name='target', db_index=True)
+    target_object_id = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     target = generic.GenericForeignKey('target_content_type',
                                        'target_object_id')
 
     action_object_content_type = models.ForeignKey(ContentType, blank=True, null=True,
-                                                   related_name='action_object')
-    action_object_object_id = models.CharField(max_length=255, blank=True, null=True)
+                                                   related_name='action_object', db_index=True)
+    action_object_object_id = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     action_object = generic.GenericForeignKey('action_object_content_type',
                                               'action_object_object_id')
 
-    timestamp = models.DateTimeField(default=now)
+    timestamp = models.DateTimeField(default=now, db_index=True)
 
-    public = models.BooleanField(default=True)
+    public = models.BooleanField(default=True, db_index=True)
 
     objects = actstream_settings.get_action_manager()
 
@@ -141,7 +144,7 @@ class Action(models.Model):
         Shortcut for the ``django.utils.timesince.timesince`` function of the
         current timestamp.
         """
-        return djtimesince(self.timestamp, now).encode('utf8').replace(b'\xc2\xa0', b' ').decode()
+        return djtimesince(self.timestamp, now).encode('utf8').replace(b'\xc2\xa0', b' ').decode('utf8')
 
     @models.permalink
     def get_absolute_url(self):
