@@ -19,7 +19,7 @@ def app_label(model_class):
     return model_class._meta.app_label
 
 
-def _action_build_kwargs(kwargs):
+def _action_build_kwargs(**kwargs):
     
     if 'action' in kwargs:
         kwargs['action_object'] = kwargs['action']
@@ -38,7 +38,7 @@ def _action_build_kwargs(kwargs):
             
             kwargs.pop(obj_name)
 
-    for key,value in kwargs.iteritems():
+    for key,value in kwargs.items():
         kwargs2[key] = value
         
     return kwargs2
@@ -49,23 +49,23 @@ class ActionManager(GFKManager):
     Default manager for Actions, accessed through Action.objects
     """
     def create(self, *args, **kwargs):
-        kwargs = _action_build_kwargs(kwargs)
+        kwargs = _action_build_kwargs(**kwargs)
         return super(ActionManager, self).create(*args, **kwargs)
 
     def get_or_create(self, *args, **kwargs):
-        kwargs = _action_build_kwargs(kwargs)
+        kwargs = _action_build_kwargs(**kwargs)
         return super(ActionManager, self).get_or_create(*args, **kwargs)
 
     def get(self, *args, **kwargs):
-        kwargs = _action_build_kwargs(kwargs)
+        kwargs = _action_build_kwargs(**kwargs)
         return super(ActionManager, self).get(*args, **kwargs)
 
     def filter(self, *args, **kwargs):
-        kwargs = _action_build_kwargs(kwargs)
+        kwargs = _action_build_kwargs(**kwargs)
         return super(ActionManager, self).filter(*args, **kwargs)
 
     def exclude(self, *args, **kwargs):
-        kwargs = _action_build_kwargs(kwargs)
+        kwargs = _action_build_kwargs(**kwargs)
         return super(ActionManager, self).exclude(*args, **kwargs)
 
     def public(self, *args, **kwargs):
