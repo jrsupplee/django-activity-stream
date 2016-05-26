@@ -22,8 +22,10 @@ def app_label(model_class):
 def _action_build_kwargs(**kwargs):
     
     if 'action' in kwargs:
-        kwargs['action_object'] = kwargs['action']
-        kwargs.pop('action')
+        kwargs['action_object'] = kwargs.pop('action')
+
+    elif 'object' in kwargs:
+        kwargs['action_object'] = kwargs.pop('object')
 
     # We must store the unstranslated string
     # If verb is an ugettext_lazyed string, fetch the original string
