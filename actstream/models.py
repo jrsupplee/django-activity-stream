@@ -127,7 +127,7 @@ class Action(models.Model):
     action_object = generic.GenericForeignKey('action_object_content_type',
                                               'action_object_object_id')
 
-    timestamp = models.DateTimeField(default=now, db_index=True)
+    timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
 
     public = models.BooleanField(default=True, db_index=True)
 
