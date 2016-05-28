@@ -15,6 +15,7 @@ def model_name(model_class):
     
     return model_class._meta.module_name
 
+
 def app_label(model_class):
     return model_class._meta.app_label
 
@@ -26,11 +27,6 @@ def _action_build_kwargs(**kwargs):
 
     elif 'object' in kwargs:
         kwargs['action_object'] = kwargs.pop('object')
-
-    # We must store the unstranslated string
-    # If verb is an ugettext_lazyed string, fetch the original string
-    if 'verb' in kwargs and hasattr(kwargs['verb'], '_proxy____args'):
-        kwargs['verb'] = kwargs['verb']._proxy____args[0]
 
     kwargs2 = {}
     for obj_name in ('actor', 'target', 'action_object'):
