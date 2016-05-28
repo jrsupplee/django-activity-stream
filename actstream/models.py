@@ -7,6 +7,7 @@ from django.utils.translation import ugettext as _
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.timesince import timesince as djtimesince
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericRelation
 
 
 try:
@@ -19,6 +20,39 @@ except ImportError:
 from actstream import settings as actstream_settings
 from actstream.managers import FollowManager
 from actstream.compat import user_model_label, generic
+
+
+class ActorRelation(GenericRelation):
+
+    def __init__(self, **kwargs):
+        super(ActorRelation, self).__init__(
+            Action,
+            content_type_field='actor_content_type',
+            object_id_field='actor_object_id',
+            **kwargs
+        )
+
+
+class ActionRelation(GenericRelation):
+
+    def __init__(self, **kwargs):
+        super(ActionRelation, self).__init__(
+            Action,
+            content_type_field='action_object_content_type',
+            object_id_field='action_object_object_id',
+            **kwargs
+        )
+
+
+class TargetRelation(GenericRelation):
+
+    def __init__(self, **kwargs):
+        super(TargetRelation, self).__init__(
+            Action,
+            content_type_field='target_content_type',
+            object_id_field='target_object_id',
+            **kwargs
+        )
 
 
 @python_2_unicode_compatible
