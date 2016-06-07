@@ -28,9 +28,13 @@ def _action_build_kwargs(**kwargs):
     elif 'object' in kwargs:
         kwargs['action_object'] = kwargs.pop('object')
 
+    elif 'obj' in kwargs:
+        kwargs['action_object'] = kwargs.pop('obj')
+
     kwargs2 = {}
     for obj_name in ('actor', 'target', 'action_object'):
         if obj_name in kwargs:
+            check(kwargs[obj_name])
             kwargs2['%s_object_id' % obj_name] = kwargs[obj_name].id
             kwargs2['%s_content_type' % obj_name] = ContentType.objects.get_for_model(kwargs[obj_name])
             

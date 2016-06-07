@@ -136,6 +136,14 @@ class Action(models.Model):
     class Meta:
         ordering = ('-timestamp', )
 
+    @property
+    def action(self):
+        return self.action_object
+
+    @property
+    def obj(self):
+        return self.action_object
+
     def __str__(self):
         ctx = {
             'actor': self.actor,
