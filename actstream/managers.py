@@ -63,6 +63,9 @@ class ActionManager(GFKManager):
         return super(ActionManager, self).get(*args, **kwargs)
 
     def filter(self, *args, **kwargs):
+        if 'deleted' not in kwargs:
+            kwargs['deleted'] = False
+
         kwargs = _action_build_kwargs(**kwargs)
         return super(ActionManager, self).filter(*args, **kwargs)
 

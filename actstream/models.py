@@ -133,6 +133,8 @@ class Action(models.Model):
 
     objects = actstream_settings.get_action_manager()
 
+    deleted = models.BooleanField(default=False, null=False)
+
     class Meta:
         ordering = ('-timestamp', )
 
